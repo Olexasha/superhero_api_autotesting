@@ -1,2 +1,2 @@
 # test_ticket
-This ticket provides framwork movings for testing API
+This ticket provides framуwork movings for testing API

@@ -1,3 +1,45 @@
+DATA_FOR_POST_CHARACTER_BY_BODY = [
+    {
+        "education": "High school (unfinished)",
+        "height": 180,
+        "identity": "Publicly known",
+        "name": "Hawkeye",
+        "universe": "Marvel Universe",
+        "weight": 87
+    },
+    {
+        "education": "University",
+        "height": 178,
+        "identity": "Secret",
+        "name": "Spider-Man",
+        "other_aliases": "Daily Bugle, Fantastic Four, New Avengers, Secret Avengers",
+        "universe": "Marvel Universe, Earth-TRN701, Earth-13",
+        "weight": 76.1
+    },
+    {
+        "education": "University",
+        "height": 185.0,
+        "identity": "Known as Tony Kark",
+        "name": "Iron-Man",
+        "universe": "Marvel Universe, Earth-199999, Earth-616",
+        "weight": 90
+    }
+]
+
+DATA_CHANGED_NAME_FOR_PUT = [
+    {
+        "result": {
+            "education": "University",
+            "height": 178,
+            "identity": "Absolutely not Spider-Man",
+            "name": "Spider-Man",
+            "other_aliases": "Daily Bugle, Fantastic Four, New Avengers, Secret Avengers",
+            "universe": "Marvel Universe, Earth-TRN701, Earth-13",
+            "weight": 76.1
+        }
+    }
+]
+
 DATA_FOR_GET_CHARACTER_BY_NAME = [
     {
         "result": {
@@ -31,32 +73,5 @@ DATA_FOR_GET_CHARACTER_BY_NAME = [
             "universe": "Marvel Universe",
             "weight": 123.75
         }
-    }
-]
-
-DATA_FOR_POST_CHARACTER_BY_BODY = [
-    {
-        "education": "High school (unfinished)",
-        "height": 1.9,
-        "identity": "Publicly known",
-        "name": "Hawkeye",
-        "universe": "Marvel Universe",
-        "weight": 104.0
-    },
-    {
-        "education": "University",
-        "height": 175,
-        "identity": "Secret",
-        "name": "Spider-Man",
-        "universe": "Marvel Universe",
-        "weight": 69.2
-    },
-    {
-        "education": "University",
-        "height": 182.0,
-        "identity": "Known",
-        "name": "Iron-Man",
-        "universe": "Marvel Universe",
-        "weight": 77.0
     }
 ]

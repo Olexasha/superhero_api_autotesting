@@ -1,12 +1,9 @@
 import pytest
 from source.helpers.work_with_api import API
-from source.data.data_expected_bodies import DATA_FOR_GET_CHARACTER_BY_NAME, DATA_FOR_POST_CHARACTER_BY_BODY
+from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DATA_CHANGED_NAME_FOR_PUT
 from source.data.data_headers import HEADERS
 
 
-# from source.data.data_expected_responses import STDOUT_DELETED_CHARACTER
-
-# TODO: GET, POST, DEL, PUT just for only 3 save objects (NOT DIFFERENT)!
 class TestAPI(object):
 
     @pytest.mark.parametrize('data', DATA_FOR_POST_CHARACTER_BY_BODY)
@@ -17,7 +14,7 @@ class TestAPI(object):
         assert response.compare_body({"result": data})
 
     @pytest.mark.parametrize('data', DATA_FOR_POST_CHARACTER_BY_BODY)
-    def test_post_character_by_name(self, data, cmdopt, cmdopt2, delete_several_characters):
+    def test_create_character(self, data, cmdopt, cmdopt2, delete_several_characters):
         response = API().post_character_by_body(json=data, login=cmdopt, password=cmdopt2)
         assert response.compare_status_code(200)
         assert response.compare_body({"result": data})
@@ -48,3 +45,14 @@ class TestAPI(object):
                     assert int(headers[key]) > 3000
                 case "Connection":
                     assert headers[key] == HEADERS["Connection"]
+
+    @pytest.mark.parametrize('data', DATA_CHANGED_NAME_FOR_PUT)
+    def test_update_character_name(self, data, cmdopt, cmdopt2, create_n_del_character_for_put):
+        response = API().put_character_by_name(json=data["result"],
+                                               login=cmdopt, password=cmdopt2)
+        assert response.compare_status_code(200)
+        assert response.compare_body(data)
+        response = API().get_character_by_name(raw_character_name=data["result"]["name"],
+                                               login=cmdopt, password=cmdopt2)
+        assert response.compare_status_code(200)
+        assert response.compare_body(data)

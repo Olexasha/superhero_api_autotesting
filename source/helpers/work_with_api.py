@@ -39,3 +39,6 @@ class API(object):
         request_url = self.raw_url + 's'
         return self.head_request(url=request_url, headers=HEADERS, auth=(login, password))
 
+    def put_character_by_name(self, login, password, *args, **kwargs):
+        return self.put_request(url=self.raw_url, headers=HEADERS, auth=(login, password), *args, **kwargs)
+

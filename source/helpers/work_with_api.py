@@ -25,6 +25,11 @@ class API(object):
     def head_request(self, *args, **kwargs):
         return Results(requests.head(*args, **kwargs))
 
-    def get_character_by_name(self, character_name):
+    def get_character_by_name(self, raw_character_name):
+        character_name = raw_character_name.replace(' ', '+')
         request_url = self.raw_url + '?name=' + character_name
         return self.get_request(url=request_url, headers=HEADERS, auth=(self.login, self.password))
+
+    def post_character_by_body(self, *args, **kwargs):
+        return self.post_request(url=self.raw_url, headers=HEADERS, auth=(self.login, self.password), *args, **kwargs)
+

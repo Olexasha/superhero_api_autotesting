@@ -47,7 +47,7 @@ class TestAPI(object):
                     assert headers[key] == HEADERS["Connection"]
 
     @pytest.mark.parametrize('data', DATA_CHANGED_NAME_FOR_PUT)
-    def test_update_character_name(self, data, cmdopt, cmdopt2, create_n_del_character_for_put):
+    def test_update_character_identity_by_name(self, data, cmdopt, cmdopt2, create_n_del_character_for_put):
         response = API().put_character_by_name(json=data["result"],
                                                login=cmdopt, password=cmdopt2)
         assert response.compare_status_code(200)

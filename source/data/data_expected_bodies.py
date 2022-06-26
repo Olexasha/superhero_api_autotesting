@@ -40,7 +40,7 @@ DATA_CHANGED_NAME_FOR_PUT = [
     }
 ]
 
-DATA_FOR_GET_CHARACTER_BY_NAME = [
+DATA_FOR_MANY_CHARS_MANIPULATIONS = [
     {
         "result": {
             "education": "Unrevealed",

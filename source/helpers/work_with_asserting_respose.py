@@ -9,7 +9,7 @@ class ParseResponse(object):
                   f'\n    Got Status Code: {response.status_code};'
                   f'\n    Callable URL: {response.request.url};'
                   f'\n    Got Headers: {response.headers};'
-                  f'\n    Got Body: {response.text}')
+                  f'\n    Got Body: response.text')
             self.status_code = response.status_code
             self.headers = response.headers
             self.body = response.json()

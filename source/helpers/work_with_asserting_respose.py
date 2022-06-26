@@ -30,5 +30,9 @@ class ParseResponse(object):
         return self.body == expected_body
 
     def compare_headers(self):
-        print(self.headers)
         return self.headers
+
+    def count_all_characters(self):
+        # print(self.body)
+        print(f'{Style.BRIGHT}\n\t  The current number of characters in the database: {len(self.body["result"])}')
+        return len(self.body["result"])

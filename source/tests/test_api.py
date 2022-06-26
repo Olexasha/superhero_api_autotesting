@@ -56,3 +56,9 @@ class TestAPI(object):
                                                login=cmdopt, password=cmdopt2)
         assert response.compare_status_code(200)
         assert response.compare_body(data)
+
+    @pytest.mark.parametrize('count_of_rerun', range(3))
+    def test_get_all_characters(self, cmdopt, cmdopt2, count_of_rerun, create_n_del_character_for_put):
+        response = API().get_all_characters(login=cmdopt, password=cmdopt2)
+        assert response.compare_status_code(200)
+        assert response.count_all_characters() >= 1

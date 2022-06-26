@@ -41,7 +41,7 @@ DATA_FOR_POST_CHARACTER_BY_BODY = [
         "identity": "Publicly known",
         "name": "Hawkeye",
         "universe": "Marvel Universe",
-        "weight": 104
+        "weight": 104.0
     },
     {
         "education": "University",
@@ -53,10 +53,10 @@ DATA_FOR_POST_CHARACTER_BY_BODY = [
     },
     {
         "education": "University",
-        "height": 182,
+        "height": 182.0,
         "identity": "Known",
         "name": "Iron-Man",
         "universe": "Marvel Universe",
-        "weight": 77
+        "weight": 77.0
     }
 ]

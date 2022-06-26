@@ -7,9 +7,11 @@ class ParseResponse(object):
         try:
             print(f'Data of executed request:\n    Request Method: {response.request.method};'
                   f'\n    Got Status Code: {response.status_code};'
-                  f'\n    Called URL: {response.request.url};'
+                  f'\n    Callable URL: {response.request.url};'
+                  f'\n    Got Headers: {response.headers};'
                   f'\n    Got Body: {response.text}')
             self.status_code = response.status_code
+            self.headers = response.headers
             self.body = response.json()
             init(autoreset=True)
         except JSONDecodeError:
@@ -26,3 +28,7 @@ class ParseResponse(object):
               f'\n\tis equal to the actual body: '
               f'\n\t\t\"{self.body}\"')
         return self.body == expected_body
+
+    def compare_headers(self):
+        print(self.headers)
+        return self.headers

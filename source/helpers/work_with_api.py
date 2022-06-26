@@ -1,13 +1,10 @@
 import requests
-from source import configuration
 from source.helpers.work_with_asserting_respose import ParseResponse as Results
 from source.data.data_headers import HEADERS
 
 
 class API(object):
     def __init__(self):
-        self.login = configuration.api_auth_login
-        self.password = configuration.api_auth_pass
         self.raw_url = 'http://rest.test.ivi.ru/v2/character'
 
     def get_request(self, *args, **kwargs):
@@ -25,16 +22,20 @@ class API(object):
     def head_request(self, *args, **kwargs):
         return Results(requests.head(*args, **kwargs))
 
-    def get_character_by_name(self, raw_character_name):
+    def get_character_by_name(self, raw_character_name, login, password):
         character_name = raw_character_name.replace(' ', '+')
         request_url = self.raw_url + '?name=' + character_name
-        return self.get_request(url=request_url, headers=HEADERS, auth=(self.login, self.password))
+        return self.get_request(url=request_url, headers=HEADERS, auth=(login, password))
 
-    def post_character_by_body(self, *args, **kwargs):
-        return self.post_request(url=self.raw_url, headers=HEADERS, auth=(self.login, self.password), *args, **kwargs)
+    def post_character_by_body(self, login, password, *args, **kwargs):
+        return self.post_request(url=self.raw_url, headers=HEADERS, auth=(login, password), *args, **kwargs)
 
-    def delete_character(self, raw_character_name):
+    def delete_character(self, raw_character_name, login, password):
         character_name = raw_character_name.replace(' ', '+')
         request_url = self.raw_url + '?name=' + character_name
-        return self.delete_request(url=request_url, headers=HEADERS, auth=(self.login, self.password))
+        return self.delete_request(url=request_url, headers=HEADERS, auth=(login, password))
+
+    def head_characters_page(self, login, password):
+        request_url = self.raw_url + 's'
+        return self.head_request(url=request_url, headers=HEADERS, auth=(login, password))
 

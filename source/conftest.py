@@ -7,6 +7,17 @@ from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DA
 init(autoreset=True)
 
 
+def printing_fixture_setup_teardown(setup_or_teardown):
+    print('\n' + '-' * 75)
+    if setup_or_teardown == 'setup':
+        print(f'{Style.BRIGHT}\tFixture\'s SetUp')
+    else:
+        print(f'{Style.BRIGHT}\tFixture\'s TearDown:')
+    print('-' * 75)
+
+
+# TODO: Make some cleaning with validation repeating. It hurts my eyes
+
 def pytest_addoption(parser):
     parser.addoption(
         "--login_auth", action="store", default=False, help="The login argument authorization",
@@ -30,9 +41,7 @@ def password_auth(request):
 @pytest.fixture(scope="function")
 def delete_several_characters(data, login_auth, password_auth):
     yield
-    print('\n' + '-' * 75)
-    print(f'{Style.BRIGHT}\tFixture\'s TearDown:')
-    print('-' * 75)
+    printing_fixture_setup_teardown('teardown')
     response = API().delete_character(raw_character_name=data["name"], login=login_auth, password=password_auth)
     if response.compare_status_code(200):
         validate_response = API().get_character_by_name(raw_character_name=data["name"], login=login_auth,
@@ -45,9 +54,7 @@ def delete_several_characters(data, login_auth, password_auth):
 @pytest.mark.parametrize('data', DATA_FOR_POST_CHARACTER_BY_BODY)
 @pytest.fixture(scope="function")
 def create_several_characters(data, login_auth, password_auth):
-    print('\n' + '-' * 75)
-    print(f'{Style.BRIGHT}\tFixture\'s SetUp')
-    print('-' * 75)
+    printing_fixture_setup_teardown('setup')
     response = API().post_character_by_body(json=data, login=login_auth, password=password_auth)
     if response.compare_status_code(200):
         validate_response = API().get_character_by_name(raw_character_name=data["name"], login=login_auth,
@@ -89,9 +96,7 @@ def create_n_del_character_for_put(login_auth, password_auth):
 
 @pytest.fixture(scope="function")
 def create_3_characters(login_auth, password_auth):
-    print('\n' + '-' * 75)
-    print(f'{Style.BRIGHT}\tFixture\'s SetUp')
-    print('-' * 75)
+    printing_fixture_setup_teardown('setup')
     for character in DATA_FOR_MANY_CHARS_MANIPULATIONS:
         response = API().delete_character(raw_character_name=character["result"]["name"], login=login_auth,
                                           password=password_auth)
@@ -101,9 +106,7 @@ def create_3_characters(login_auth, password_auth):
             if not validate_response.compare_body({"error": "No such name"}):
                 print('Characters were NOT deleted!')
     yield
-    print('\n' + '-' * 75)
-    print(f'{Style.BRIGHT}\tFixture\'s TearDown:')
-    print('-' * 75)
+    printing_fixture_setup_teardown('teardown')
     for character in DATA_FOR_MANY_CHARS_MANIPULATIONS:
         response = API().delete_character(raw_character_name=character["result"]["name"], login=login_auth,
                                           password=password_auth)

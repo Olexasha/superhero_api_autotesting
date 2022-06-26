@@ -9,7 +9,7 @@ class ParseResponse(object):
                   f'\n    Got Status Code: {response.status_code};'
                   f'\n    Callable URL: {response.request.url};'
                   f'\n    Got Headers: {response.headers};'
-                  f'\n    Got Body: response.text')
+                  f'\n    Got Body: {response.text}')
             self.status_code = response.status_code
             self.headers = response.headers
             self.body = response.json()
@@ -29,10 +29,14 @@ class ParseResponse(object):
               f'\n\t\t\"{self.body}\"')
         return self.body == expected_body
 
-    def compare_headers(self):
+    def return_headers(self):
         return self.headers
+
+    def return_body(self):
+        return self.body["result"]
 
     def count_all_characters(self):
         # print(self.body)
         print(f'{Style.BRIGHT}\n\t  The current number of characters in the database: {len(self.body["result"])}')
         return len(self.body["result"])
+

@@ -1,6 +1,6 @@
+from colorama import Style, init
 from source.helpers.work_with_api import API
-from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DATA_CHANGED_NAME_FOR_PUT, \
-    DATA_FOR_MANY_CHARS_MANIPULATIONS
+from source.data.data_expected_bodies import DATA_FOR_MANY_CHARS_MANIPULATIONS
 
 
 class WorkCharacters(object):
@@ -16,3 +16,14 @@ class WorkCharacters(object):
                     assert False, print('Characters were NOT posted')
         response = API().get_all_characters(login=login, password=password)
         return response.count_all_characters()
+
+    def find_duplicate_characters(self, payload):
+        print(f'\n\t  The current number of characters in the database: {len(payload)}')
+        counter = {}
+        for character_fields in payload:
+            counter[character_fields["name"]] = counter.get(character_fields["name"], 0) + 1
+        duplicates = {element: count for element, count in counter.items() if count > 1}
+        if duplicates != {}:
+            print(f'{Style.BRIGHT}\n\tThere is a recurring character in the database '
+                  f'(key: character, value: count of repeats): {duplicates}')
+            return False

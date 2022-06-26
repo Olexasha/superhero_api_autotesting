@@ -35,7 +35,7 @@ class TestAPI(object):
     def test_headers_field(self, login_auth, password_auth):
         response = API().head_characters_page(login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
-        headers = response.compare_headers()
+        headers = response.return_headers()
         for key in headers.keys():
             match key:
                 case "Server":
@@ -66,3 +66,8 @@ class TestAPI(object):
         characters_before = response.count_all_characters()
         characters_after = WorkCharacters().count_after_create_chars(login=login_auth, password=password_auth)
         assert characters_before + 3 == characters_after
+
+    def test_get_all_duplicate_chars(self, login_auth, password_auth):
+        response = API().get_all_characters(login=login_auth, password=password_auth)
+        assert response.compare_status_code(200)
+        assert WorkCharacters().find_duplicate_characters(response.return_body())

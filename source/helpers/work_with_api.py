@@ -33,3 +33,8 @@ class API(object):
     def post_character_by_body(self, *args, **kwargs):
         return self.post_request(url=self.raw_url, headers=HEADERS, auth=(self.login, self.password), *args, **kwargs)
 
+    def delete_character(self, raw_character_name):
+        character_name = raw_character_name.replace(' ', '+')
+        request_url = self.raw_url + '?name=' + character_name
+        return self.delete_request(url=request_url, headers=HEADERS, auth=(self.login, self.password))
+

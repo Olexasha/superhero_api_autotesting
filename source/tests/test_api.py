@@ -105,4 +105,5 @@ class TestAPI(object):
     #                                             password=password_auth)
     #     assert response.compare_status_code(400)
     #     assert response.compare_body(RESPONSE_MISSING_REQUIRED_FIELD)
+
     # def test_wrong_order_of_field(self, login_auth, password_auth):

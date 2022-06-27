@@ -26,19 +26,15 @@ DATA_FOR_POST_CHARACTER_BY_BODY = [
     }
 ]
 
-DATA_CHANGED_NAME_FOR_PUT = [
-    {
-        "result": {
-            "education": "University",
-            "height": 178,
-            "identity": "Absolutely not Spider-Man",
-            "name": "Spider-Man",
-            "other_aliases": "Daily Bugle, Fantastic Four, New Avengers, Secret Avengers",
-            "universe": "Marvel Universe, Earth-TRN701, Earth-13",
-            "weight": 76.1
-        }
-    }
-]
+DATA_CHANGED_NAME_FOR_PUT = [{"result": {
+    "education": "University",
+    "height": 178,
+    "identity": "Absolutely not Spider-Man",
+    "name": "Spider-Man",
+    "other_aliases": "Daily Bugle, Fantastic Four, New Avengers, Secret Avengers",
+    "universe": "Marvel Universe, Earth-TRN701, Earth-13",
+    "weight": 76.1
+}}]
 
 DATA_FOR_MANY_CHARS_MANIPULATIONS = [
     {
@@ -75,3 +71,23 @@ DATA_FOR_MANY_CHARS_MANIPULATIONS = [
         }
     }
 ]
+
+WRONG_ORDER_OF_FIELDS = {"result": {
+    "identity": "Secret, known to select underworld crime bosses.",
+    "height": 218,
+    "universe": "Marvel Universe",
+    "education": "Unrevealed",
+    "other_aliases": "The Ivan",
+    "weight": 257.85,
+    "name": "Russian"
+}}
+
+MIN_LENGTH_FIELD = {"result": {
+    "education": "University",
+    "height": 178,
+    "identity": "Secret",
+    "name": "",
+    "other_aliases": "Daily Bugle, Fantastic Four, New Avengers, Secret Avengers",
+    "universe": "Marvel Universe, Earth-TRN701, Earth-13",
+    "weight": 76.1
+}}

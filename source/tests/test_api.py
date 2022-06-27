@@ -1,8 +1,10 @@
 import pytest
 from source.helpers.work_with_api import API
 from source.helpers.work_with_fields import WorkCharacters
-from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DATA_CHANGED_NAME_FOR_PUT
-from source.data.data_expected_responses import NEEDED_AUTHORIZATION, SLICE_LOGIN
+from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DATA_CHANGED_NAME_FOR_PUT, \
+    MIN_LENGTH_FIELD, WRONG_ORDER_OF_FIELDS
+from source.data.data_expected_responses import RESPONSE_NEEDED_AUTHORIZATION, RESPONSE_SLICE_LOGIN, \
+    RESPONSE_WRONG_ORDER_OF_FIELDS, RESPONSE_MISSING_REQUIRED_FIELD, RESPONSE_MIN_LENGTH, RESPONSE_INVALID_INPUT
 from source.data.data_headers import HEADERS
 
 
@@ -76,12 +78,31 @@ class TestAPI(object):
     def test_wrong_authorization(self, login_auth, password_auth):
         response = API().get_all_characters(login=login_auth, password='dc_better_than_marvel')
         assert response.compare_status_code(401)
-        assert response.compare_body(NEEDED_AUTHORIZATION)
+        assert response.compare_body(RESPONSE_NEEDED_AUTHORIZATION)
         response = API().get_all_characters(login=' ', password=password_auth)
         assert response.compare_status_code(401)
-        assert response.compare_body(NEEDED_AUTHORIZATION)
+        assert response.compare_body(RESPONSE_NEEDED_AUTHORIZATION)
 
     def test_empty_login(self, login_auth, password_auth):
         response = API().get_all_characters(login='', password=password_auth)
         assert response.compare_status_code(500)
-        assert response.compare_raw_text(SLICE_LOGIN)
+        assert response.compare_raw_text(RESPONSE_SLICE_LOGIN)
+
+    def test_min_length_n_null_field(self, login_auth, password_auth):
+        response = API().post_character_by_body(json=MIN_LENGTH_FIELD["result"],
+                                                login=login_auth, password=password_auth)
+        assert response.compare_status_code(400)
+        assert response.compare_body(RESPONSE_MIN_LENGTH)
+        data = MIN_LENGTH_FIELD["result"].pop("name")
+        response = API().post_character_by_body(json=data, login=login_auth,
+                                                password=password_auth)
+        assert response.compare_status_code(400)
+        assert response.compare_body(RESPONSE_INVALID_INPUT)
+
+    # def test_missing_required_field(self, login_auth, password_auth):
+    #     data = MIN_LENGTH_FIELD["result"].pop("name")
+    #     response = API().post_character_by_body(json=data, login=login_auth,
+    #                                             password=password_auth)
+    #     assert response.compare_status_code(400)
+    #     assert response.compare_body(RESPONSE_MISSING_REQUIRED_FIELD)
+    # def test_wrong_order_of_field(self, login_auth, password_auth):

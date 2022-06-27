@@ -72,15 +72,15 @@ DATA_FOR_MANY_CHARS_MANIPULATIONS = [
     }
 ]
 
-WRONG_ORDER_OF_FIELDS = {"result": {
+WRONG_ORDER_OF_FIELDS = [{"result": {
     "identity": "Secret, known to select underworld crime bosses.",
     "height": 218,
     "universe": "Marvel Universe",
     "education": "Unrevealed",
     "other_aliases": "The Ivan",
     "weight": 257.85,
-    "name": "Russian"
-}}
+    "name": "Not Russian"
+}}]
 
 MIN_LENGTH_FIELD = {"result": {
     "education": "University",

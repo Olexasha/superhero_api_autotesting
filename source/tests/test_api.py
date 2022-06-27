@@ -4,7 +4,7 @@ from source.helpers.work_with_fields import WorkCharacters
 from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DATA_CHANGED_NAME_FOR_PUT, \
     MIN_LENGTH_FIELD, WRONG_ORDER_OF_FIELDS
 from source.data.data_expected_responses import RESPONSE_NEEDED_AUTHORIZATION, RESPONSE_SLICE_LOGIN, \
-    RESPONSE_WRONG_ORDER_OF_FIELDS, RESPONSE_MISSING_REQUIRED_FIELD, RESPONSE_MIN_LENGTH, RESPONSE_INVALID_INPUT
+    RESPONSE_INVALID_POST_JSON, RESPONSE_MISSING_REQUIRED_FIELD, RESPONSE_MIN_LENGTH, RESPONSE_INVALID_INPUT
 from source.data.data_headers import HEADERS
 
 
@@ -106,4 +106,9 @@ class TestAPI(object):
     #     assert response.compare_status_code(400)
     #     assert response.compare_body(RESPONSE_MISSING_REQUIRED_FIELD)
 
-    # def test_wrong_order_of_field(self, login_auth, password_auth):
+    @pytest.mark.parametrize('data', WRONG_ORDER_OF_FIELDS)
+    def test_wrong_order_of_field(self, login_auth, password_auth, delete_several_characters, data):
+        response = API().post_character_by_body(json=data["result"],
+                                                login=login_auth, password=password_auth)
+        assert response.compare_status_code(200)
+        assert response.compare_body(data["result"])

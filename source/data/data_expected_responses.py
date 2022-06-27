@@ -17,4 +17,4 @@ RESPONSE_INVALID_INPUT = {'error': "_schema: ['Invalid input type.']"}
 
 RESPONSE_MISSING_REQUIRED_FIELD = {'error': "name: ['Missing data for required field.']"}
 
-RESPONSE_WRONG_ORDER_OF_FIELDS = {"error": "Payload must be a valid json"}
+RESPONSE_INVALID_POST_JSON = {"error": "Payload must be a valid json"}

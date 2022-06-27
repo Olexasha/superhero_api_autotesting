@@ -39,3 +39,14 @@ class WorkCharacters(object):
             print(f'{Style.BRIGHT}\n\tThere is a recurring character in the database '
                   f'(key: character, value: count of repeats): {duplicates}')
             return False
+
+    def check_characters_fields(self, payload):
+        bad_field = []
+        for character in payload:
+            for field, value in character.items():
+                match field:
+                    case "height":
+                        s = str(value)
+                        if float(value) < 120 or (abs(s.find('.') - len(s)) - 1) > 2:
+                            bad_field.append(character)
+

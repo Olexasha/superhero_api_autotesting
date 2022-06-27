@@ -76,7 +76,7 @@ def create_several_characters(data, login_auth, password_auth):
 
 
 @pytest.fixture(scope="function")
-def create_n_del_character_for_put(login_auth, password_auth):
+def create_n_del_character(login_auth, password_auth):
     printing_fixture_setup_teardown('setup')
     data_unchanged = DATA_FOR_POST_CHARACTER_BY_BODY[1]
     creating_character(data_unchanged, login_auth, password_auth)

@@ -82,7 +82,7 @@ class TestAPI(object):
                     assert headers[key] == HEADERS["Connection"]
 
     @pytest.mark.parametrize('data', DATA_CHANGED_NAME_FOR_PUT)
-    def test_update_character_identity_by_name(self, data, login_auth, password_auth, create_n_del_character_for_put):
+    def test_update_character_identity_by_name(self, data, login_auth, password_auth, create_n_del_character):
         """
         Test PUT object
         :param data: payload
@@ -167,4 +167,41 @@ class TestAPI(object):
         assert response.compare_body(WRONG_ORDER_OF_FIELDS_EXPECTED)
 
     # def test_characters_field(self, login_auth, password_auth):
-    #
+    #     """
+    #     Tests if the body fields are filled out correctly
+    #     """
+    #     response = API().get_all_characters(login=login_auth, password=password_auth)
+    #     assert response.compare_status_code(200)
+    #     assert WorkCharacters().check_characters_fields(response.return_body())
+
+    def test_delete_deleted_char(self, login_auth, password_auth):
+        """
+        Tests the correctness of the return body when DELETE a character 'Anyone' that does not exist
+        """
+        response = API().delete_character(raw_character_name="Anyone", login=login_auth, password=password_auth)
+        deleted_hero = {"error": "No such name"}
+        assert response.compare_status_code(400)
+        assert response.compare_body(deleted_hero)
+
+    def test_create_existing_char(self, login_auth, password_auth, create_n_del_character):
+        """
+        Tests the correctness of the return body when POST an existing 'Spider-Man' character
+        :param create_n_del_character: setup and teardown fixture
+        """
+        response = API().post_character_by_body(json=DATA_FOR_POST_CHARACTER_BY_BODY[1], login=login_auth, password=password_auth)
+        assert response.compare_status_code(400)
+        existing_hero = {"error": "Spider-Man is already exists"}
+        assert response.compare_body(existing_hero)
+
+    def test_get_not_existing_char(self, login_auth, password_auth):
+        """
+        Tests the correctness of the body return when GET a non-existent 'Anyone' character
+        """
+        response = API().get_character_by_name(raw_character_name="Anyone",
+                                               login=login_auth, password=password_auth)
+        assert response.compare_status_code(400)
+        nonexistent_hero = {"error": "No such name"}
+        assert response.compare_body(nonexistent_hero)
+
+
+

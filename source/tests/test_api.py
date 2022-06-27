@@ -2,6 +2,7 @@ import pytest
 from source.helpers.work_with_api import API
 from source.helpers.work_with_fields import WorkCharacters
 from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DATA_CHANGED_NAME_FOR_PUT
+from source.data.data_expected_responses import NEEDED_AUTHORIZATION, SLICE_LOGIN
 from source.data.data_headers import HEADERS
 
 
@@ -71,3 +72,16 @@ class TestAPI(object):
         response = API().get_all_characters(login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
         assert WorkCharacters().find_duplicate_characters(response.return_body())
+
+    def test_wrong_authorization(self, login_auth, password_auth):
+        response = API().get_all_characters(login=login_auth, password='dc_better_than_marvel')
+        assert response.compare_status_code(401)
+        assert response.compare_body(NEEDED_AUTHORIZATION)
+        response = API().get_all_characters(login=' ', password=password_auth)
+        assert response.compare_status_code(401)
+        assert response.compare_body(NEEDED_AUTHORIZATION)
+
+    def test_empty_login(self, login_auth, password_auth):
+        response = API().get_all_characters(login='', password=password_auth)
+        assert response.compare_status_code(500)
+        assert response.compare_raw_text(SLICE_LOGIN)

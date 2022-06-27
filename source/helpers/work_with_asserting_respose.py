@@ -12,6 +12,7 @@ class ParseResponse(object):
                   f'\n    Got Body: {response.text}')
             self.status_code = response.status_code
             self.headers = response.headers
+            self.text = response.text
             self.body = response.json()
             init(autoreset=True)
         except JSONDecodeError:
@@ -28,6 +29,13 @@ class ParseResponse(object):
               f'\n\tis equal to the actual body: '
               f'\n\t\t\"{self.body}\"')
         return self.body == expected_body
+
+    def compare_raw_text(self, expected_text):
+        print(f'{Style.BRIGHT}Check if the expected text: '
+              f'\n\t\t\"{expected_text}\" '
+              f'\n\tis equal to the actual text: '
+              f'\n\t\t\"{self.text}\"')
+        return self.text == expected_text
 
     def return_headers(self):
         return self.headers

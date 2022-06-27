@@ -7,19 +7,24 @@ from source.data.data_expected_responses import RESPONSE_NEEDED_AUTHORIZATION, R
     RESPONSE_INVALID_POST_JSON, RESPONSE_MISSING_REQUIRED_FIELD, RESPONSE_MIN_LENGTH, RESPONSE_INVALID_INPUT
 from source.data.data_headers import HEADERS
 
+
 # TODO:
-#  1. DEL удалённого
-#  2. POST существующего
-#  3. GET не существующего
-#  4. Перебрать поля на дикость
-#  5. Забить БД до отказа
-#  6. В float много знаков после ,
-#  7.
+# 1. Через match-case проверить поля у всех героев
+#    1.1. Чисел после , не более 2
+#    1.2. ? Рост-вес не больше/меньше адекватных
+#    1.3. Проверка на такие штуки: "a href=", "\"...
+#    1.4. ? Кириллица
+# 2. Заполнить БД до 500 объектов (макс)
+# 3. Ресетнуть БД
+# 4. Задание полям другие типы данных
+# 5. ? Узнать максимум чисел после запятой
 
 class TestAPI(object):
     """
     Class to run tests by pytest
     """
+
+    @pytest.mark.test_http_functional
     @pytest.mark.parametrize('data', DATA_FOR_POST_CHARACTER_BY_BODY)
     def test_get_character_by_name(self, data, login_auth, password_auth, create_several_characters,
                                    delete_several_characters):
@@ -34,6 +39,7 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         assert response.compare_body({"result": data})
 
+    @pytest.mark.test_http_functional
     @pytest.mark.parametrize('data', DATA_FOR_POST_CHARACTER_BY_BODY)
     def test_create_character(self, data, login_auth, password_auth, delete_several_characters):
         """
@@ -49,6 +55,7 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         assert response.compare_body({"result": data})
 
+    @pytest.mark.test_http_functional
     @pytest.mark.parametrize('data', DATA_FOR_POST_CHARACTER_BY_BODY)
     def test_delete_character_by_name(self, data, login_auth, password_auth, create_several_characters):
         """
@@ -61,6 +68,7 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         assert response.compare_body(deleted_hero)
 
+    @pytest.mark.test_objects_api
     def test_headers_field(self, login_auth, password_auth):
         """
         Check headers fields by GET method
@@ -81,6 +89,7 @@ class TestAPI(object):
                 case "Connection":
                     assert headers[key] == HEADERS["Connection"]
 
+    @pytest.mark.test_http_functional
     @pytest.mark.parametrize('data', DATA_CHANGED_NAME_FOR_PUT)
     def test_update_character_identity_by_name(self, data, login_auth, password_auth, create_n_del_character):
         """
@@ -97,6 +106,8 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         assert response.compare_body(data)
 
+    @pytest.mark.test_http_functional
+    @pytest.mark.test_http_functional
     def test_get_all_characters(self, login_auth, password_auth, delete_3_characters_same_time):
         """
         Tests GET all objects. The status is checked before the creation of 3 characters and after
@@ -108,6 +119,7 @@ class TestAPI(object):
         characters_after = WorkCharacters().count_after_create_chars(login=login_auth, password=password_auth)
         assert characters_before + 3 == characters_after
 
+    @pytest.mark.test_objects_api
     def test_get_all_duplicate_chars(self, login_auth, password_auth):
         """
         Tests for the presence of duplicate characters
@@ -116,6 +128,7 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         assert WorkCharacters().find_duplicate_characters(response.return_body())
 
+    @pytest.mark.test_negative_cases
     def test_wrong_authorization(self, login_auth, password_auth):
         """
         Tests wrong authorization data in advance
@@ -127,6 +140,7 @@ class TestAPI(object):
         assert response.compare_status_code(401)
         assert response.compare_body(RESPONSE_NEEDED_AUTHORIZATION)
 
+    @pytest.mark.test_negative_cases
     def test_empty_login(self, login_auth, password_auth):
         """
         Tests wrong authorization by empty field
@@ -135,6 +149,7 @@ class TestAPI(object):
         assert response.compare_status_code(500)
         assert response.compare_raw_text(RESPONSE_SLICE_LOGIN)
 
+    @pytest.mark.test_negative_cases
     def test_min_length_n_null_field(self, login_auth, password_auth):
         """
         Tests the minimum length of the field and its absence
@@ -149,6 +164,7 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         assert response.compare_body(RESPONSE_INVALID_INPUT)
 
+    # @pytest.mark.test_negative_cases
     # def test_missing_required_field(self, login_auth, password_auth):
     #     data = MIN_LENGTH_FIELD["result"].pop("name")
     #     response = API().post_character_by_body(json=data, login=login_auth,
@@ -156,6 +172,7 @@ class TestAPI(object):
     #     assert response.compare_status_code(400)
     #     assert response.compare_body(RESPONSE_MISSING_REQUIRED_FIELD)
 
+    @pytest.mark.test_negative_cases
     def test_wrong_order_of_field(self, login_auth, password_auth, double_delete_character):
         """
         Tests POST method with wrong fields order
@@ -166,6 +183,7 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         assert response.compare_body(WRONG_ORDER_OF_FIELDS_EXPECTED)
 
+    # @pytest.mark.test_objects_api
     # def test_characters_field(self, login_auth, password_auth):
     #     """
     #     Tests if the body fields are filled out correctly
@@ -174,6 +192,7 @@ class TestAPI(object):
     #     assert response.compare_status_code(200)
     #     assert WorkCharacters().check_characters_fields(response.return_body())
 
+    @pytest.mark.test_negative_cases
     def test_delete_deleted_char(self, login_auth, password_auth):
         """
         Tests the correctness of the return body when DELETE a character 'Anyone' that does not exist
@@ -183,16 +202,19 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         assert response.compare_body(deleted_hero)
 
+    @pytest.mark.test_negative_cases
     def test_create_existing_char(self, login_auth, password_auth, create_n_del_character):
         """
         Tests the correctness of the return body when POST an existing 'Spider-Man' character
         :param create_n_del_character: setup and teardown fixture
         """
-        response = API().post_character_by_body(json=DATA_FOR_POST_CHARACTER_BY_BODY[1], login=login_auth, password=password_auth)
+        response = API().post_character_by_body(json=DATA_FOR_POST_CHARACTER_BY_BODY[1], login=login_auth,
+                                                password=password_auth)
         assert response.compare_status_code(400)
         existing_hero = {"error": "Spider-Man is already exists"}
         assert response.compare_body(existing_hero)
 
+    @pytest.mark.test_negative_cases
     def test_get_not_existing_char(self, login_auth, password_auth):
         """
         Tests the correctness of the body return when GET a non-existent 'Anyone' character
@@ -202,6 +224,3 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         nonexistent_hero = {"error": "No such name"}
         assert response.compare_body(nonexistent_hero)
-
-
-

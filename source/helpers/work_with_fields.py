@@ -6,6 +6,12 @@ from source.data.data_expected_bodies import DATA_FOR_MANY_CHARS_MANIPULATIONS
 class WorkCharacters(object):
 
     def count_after_create_chars(self, login, password):
+        """
+        Counts the number of all characters before creating new ones. Some validates also
+        :param login: login auth
+        :param password: password auth
+        :return: call the method of counting all characters by response
+        """
         for character in DATA_FOR_MANY_CHARS_MANIPULATIONS:
             response = API().post_character_by_body(json=character["result"], login=login, password=password)
             if response.compare_status_code(200):
@@ -18,6 +24,12 @@ class WorkCharacters(object):
         return response.count_all_characters()
 
     def find_duplicate_characters(self, payload):
+        """
+        Looks for the same characters and adds them to the 'duplicates'. 'duplicates' specifies the character
+        to be repeated and the number of repetitions
+        :param payload: payload
+        :return: bool value
+        """
         print(f'\n\t  The current number of characters in the database: {len(payload)}')
         counter = {}
         for character_fields in payload:

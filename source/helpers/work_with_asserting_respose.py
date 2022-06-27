@@ -3,7 +3,14 @@ from json.decoder import JSONDecodeError
 
 
 class ParseResponse(object):
+    """
+    Class works with the obtained values
+    """
     def __init__(self, response):
+        """
+        Dividing the answer into components
+        :param response: HTTP answer
+        """
         try:
             print(f'Data of executed request:\n    Request Method: {response.request.method};'
                   f'\n    Got Status Code: {response.status_code};'
@@ -19,11 +26,21 @@ class ParseResponse(object):
             print('I\'ve got not JSON type!')
 
     def compare_status_code(self, expected_status_code):
+        """
+        HTTP code status comparison
+        :param expected_status_code: expected code
+        :return: bool value
+        """
         print(f'{Style.BRIGHT}Check if the expected status code: \"{expected_status_code}\" '
               f'is equal to the actual code: \"{self.status_code}\"')
         return self.status_code == expected_status_code
 
     def compare_body(self, expected_body):
+        """
+        HTTP JSON body comparison
+        :param expected_body: expected body
+        :return: bool value
+        """
         print(f'{Style.BRIGHT}Check if the expected body: '
               f'\n\t\t\"{expected_body}\" '
               f'\n\tis equal to the actual body: '
@@ -31,6 +48,11 @@ class ParseResponse(object):
         return self.body == expected_body
 
     def compare_raw_text(self, expected_text):
+        """
+        HTTP raw body comparison
+        :param expected_text: expected text
+        :return: bool value
+        """
         print(f'{Style.BRIGHT}Check if the expected text: '
               f'\n\t\t\"{expected_text}\" '
               f'\n\tis equal to the actual text: '
@@ -38,12 +60,21 @@ class ParseResponse(object):
         return self.text == expected_text
 
     def return_headers(self):
+        """
+        :return: HTTP headers
+        """
         return self.headers
 
     def return_body(self):
+        """
+        :return: HTTP JSON body
+        """
         return self.body["result"]
 
     def count_all_characters(self):
+        """
+        :return: Count of all characters
+        """
         # print(self.body)
         print(f'{Style.BRIGHT}\n\t  The current number of characters in the database: {len(self.body["result"])}')
         return len(self.body["result"])

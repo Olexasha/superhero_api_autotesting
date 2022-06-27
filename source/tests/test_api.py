@@ -2,11 +2,19 @@ import pytest
 from source.helpers.work_with_api import API
 from source.helpers.work_with_fields import WorkCharacters
 from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DATA_CHANGED_NAME_FOR_PUT, \
-    MIN_LENGTH_FIELD, WRONG_ORDER_OF_FIELDS
+    MIN_LENGTH_FIELD, WRONG_ORDER_OF_FIELDS, WRONG_ORDER_OF_FIELDS_EXPECTED
 from source.data.data_expected_responses import RESPONSE_NEEDED_AUTHORIZATION, RESPONSE_SLICE_LOGIN, \
     RESPONSE_INVALID_POST_JSON, RESPONSE_MISSING_REQUIRED_FIELD, RESPONSE_MIN_LENGTH, RESPONSE_INVALID_INPUT
 from source.data.data_headers import HEADERS
 
+# TODO:
+#  1. DEL удалённого
+#  2. POST существующего
+#  3. GET не существующего
+#  4. Перебрать поля на дикость
+#  5. Забить БД до отказа
+#  6. В float много знаков после ,
+#  7.
 
 class TestAPI(object):
     """
@@ -89,7 +97,7 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         assert response.compare_body(data)
 
-    def test_get_all_characters(self, login_auth, password_auth, create_3_characters):
+    def test_get_all_characters(self, login_auth, password_auth, delete_3_characters_same_time):
         """
         Tests GET all objects. The status is checked before the creation of 3 characters and after
         :param create_3_characters: setup and teardown fixture
@@ -148,14 +156,15 @@ class TestAPI(object):
     #     assert response.compare_status_code(400)
     #     assert response.compare_body(RESPONSE_MISSING_REQUIRED_FIELD)
 
-    @pytest.mark.parametrize('data', WRONG_ORDER_OF_FIELDS)
-    def test_wrong_order_of_field(self, login_auth, password_auth, delete_several_characters, data):
+    def test_wrong_order_of_field(self, login_auth, password_auth, double_delete_character):
         """
-        Does not work yet :'(
-        :param delete_several_characters: teardown fixture
-        :param data: payload
+        Tests POST method with wrong fields order
+        :param double_delete_character: setup and teardown fixture
         """
-        response = API().post_character_by_body(json=data["result"],
+        response = API().post_character_by_body(json=WRONG_ORDER_OF_FIELDS["result"],
                                                 login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
-        assert response.compare_body(data["result"])
+        assert response.compare_body(WRONG_ORDER_OF_FIELDS_EXPECTED)
+
+    # def test_characters_field(self, login_auth, password_auth):
+    #

@@ -11,17 +11,6 @@ from source.data.data_expected_responses import RESPONSE_NEEDED_AUTHORIZATION, R
 from source.data.data_headers import HEADERS
 
 
-# TODO:
-# 1. Через match-case проверить поля у всех героев
-#    1.1. Чисел после , не более 2
-#    1.2. ? Рост-вес не больше/меньше адекватных
-#    1.3. Проверка на такие штуки: "a href=", "\"...
-#    1.4. ? Кириллица
-# 2. Заполнить БД до 500 объектов (макс)
-# 3. Ресетнуть БД
-# 4. Задание полям другие типы данных
-# 5. ? Узнать максимум чисел после запятой
-
 class TestAPI(object):
     """
     Class to run tests by pytest
@@ -282,4 +271,3 @@ class TestAPI(object):
         response = API().get_all_characters(login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
         assert WorkCharacters().validate_fields(response.return_body())
-

@@ -2,7 +2,8 @@ import pytest
 from colorama import Style, init
 from source.helpers.work_with_api import API
 from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DATA_CHANGED_NAME_FOR_PUT, \
-    DATA_FOR_MANY_CHARS_MANIPULATIONS, WRONG_ORDER_OF_FIELDS_EXPECTED
+    DATA_FOR_MANY_CHARS_MANIPULATIONS, WRONG_ORDER_OF_FIELDS_EXPECTED, DATA_STANDARD_CHARACTER
+from source.data.data_expected_responses import RESPONSE_NO_SUCH_NAME_CHARACTER
 
 init(autoreset=True)
 
@@ -66,6 +67,15 @@ def delete_several_characters(data, login_auth, password_auth):
     print('-' * 75)
 
 
+@pytest.mark.parametrize('data', DATA_STANDARD_CHARACTER)
+@pytest.fixture(scope="function")
+def create_character(data, login_auth, password_auth):
+    printing_fixture_setup_teardown('setup')
+    creating_character(data["result"], login_auth, password_auth)
+    print('-' * 75)
+    yield
+
+
 @pytest.mark.parametrize('data', DATA_FOR_POST_CHARACTER_BY_BODY)
 @pytest.fixture(scope="function")
 def create_several_characters(data, login_auth, password_auth):
@@ -122,3 +132,17 @@ def double_delete_character(login_auth, password_auth):
     printing_fixture_setup_teardown('teardown')
     deleting_character(data, login_auth, password_auth)
     print('-' * 75)
+
+
+@pytest.fixture(scope="function")
+def reset_database_before(login_auth, password_auth):
+    printing_fixture_setup_teardown("setup")
+    API().delete_all_characters(login_auth, password_auth)
+    yield
+
+
+@pytest.fixture(scope="function")
+def reset_database_after(login_auth, password_auth):
+    yield
+    API().delete_all_characters(login_auth, password_auth)
+    printing_fixture_setup_teardown("teardown")

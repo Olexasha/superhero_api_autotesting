@@ -1,3 +1,13 @@
+DATA_STANDARD_CHARACTER = [{"result": {
+    "education": "Middle School",
+    "height": 160,
+    "identity": "Secret",
+    "name": "Wolverine",
+    "other_aliases": "X-Men, New Avengers, X-Force, USA Army",
+    "universe": "Marvel Universe, Earth-TRN701, Earth-13",
+    "weight": 136.5
+}}]
+
 DATA_FOR_POST_CHARACTER_BY_BODY = [
     {
         "education": "High school (unfinished)",
@@ -100,3 +110,12 @@ MIN_LENGTH_FIELD = {"result": {
     "universe": "Marvel Universe, Earth-TRN701, Earth-13",
     "weight": 76.1
 }}
+
+MISSING_REQUIRED_FIELD = {
+    "education": "University",
+    "height": 178,
+    "identity": "Secret",
+    "other_aliases": "Daily Bugle, Fantastic Four, New Avengers, Secret Avengers",
+    "universe": "Marvel Universe, Earth-TRN701, Earth-13",
+    "weight": 76.1
+}

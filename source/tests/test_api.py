@@ -1,10 +1,13 @@
 import pytest
+from copy import deepcopy
 from source.helpers.work_with_api import API
 from source.helpers.work_with_fields import WorkCharacters
 from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DATA_CHANGED_NAME_FOR_PUT, \
-    MIN_LENGTH_FIELD, WRONG_ORDER_OF_FIELDS, WRONG_ORDER_OF_FIELDS_EXPECTED
+    MIN_LENGTH_FIELD, WRONG_ORDER_OF_FIELDS, WRONG_ORDER_OF_FIELDS_EXPECTED, MISSING_REQUIRED_FIELD, \
+    DATA_STANDARD_CHARACTER
 from source.data.data_expected_responses import RESPONSE_NEEDED_AUTHORIZATION, RESPONSE_SLICE_LOGIN, \
-    RESPONSE_INVALID_POST_JSON, RESPONSE_MISSING_REQUIRED_FIELD, RESPONSE_MIN_LENGTH, RESPONSE_INVALID_INPUT
+    RESPONSE_INVALID_POST_JSON, RESPONSE_MISSING_REQUIRED_FIELD, RESPONSE_FIELD_LENGTH_ERROR, RESPONSE_INVALID_INPUT, \
+    RESPONSE_NO_SUCH_NAME_CHARACTER
 from source.data.data_headers import HEADERS
 
 
@@ -107,7 +110,6 @@ class TestAPI(object):
         assert response.compare_body(data)
 
     @pytest.mark.test_http_functional
-    @pytest.mark.test_http_functional
     def test_get_all_characters(self, login_auth, password_auth, delete_3_characters_same_time):
         """
         Tests GET all objects. The status is checked before the creation of 3 characters and after
@@ -150,29 +152,6 @@ class TestAPI(object):
         assert response.compare_raw_text(RESPONSE_SLICE_LOGIN)
 
     @pytest.mark.test_negative_cases
-    def test_min_length_n_null_field(self, login_auth, password_auth):
-        """
-        Tests the minimum length of the field and its absence
-        """
-        response = API().post_character_by_body(json=MIN_LENGTH_FIELD["result"],
-                                                login=login_auth, password=password_auth)
-        assert response.compare_status_code(400)
-        assert response.compare_body(RESPONSE_MIN_LENGTH)
-        data = MIN_LENGTH_FIELD["result"].pop("name")
-        response = API().post_character_by_body(json=data, login=login_auth,
-                                                password=password_auth)
-        assert response.compare_status_code(400)
-        assert response.compare_body(RESPONSE_INVALID_INPUT)
-
-    # @pytest.mark.test_negative_cases
-    # def test_missing_required_field(self, login_auth, password_auth):
-    #     data = MIN_LENGTH_FIELD["result"].pop("name")
-    #     response = API().post_character_by_body(json=data, login=login_auth,
-    #                                             password=password_auth)
-    #     assert response.compare_status_code(400)
-    #     assert response.compare_body(RESPONSE_MISSING_REQUIRED_FIELD)
-
-    @pytest.mark.test_negative_cases
     def test_wrong_order_of_field(self, login_auth, password_auth, double_delete_character):
         """
         Tests POST method with wrong fields order
@@ -183,24 +162,14 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         assert response.compare_body(WRONG_ORDER_OF_FIELDS_EXPECTED)
 
-    # @pytest.mark.test_objects_api
-    # def test_characters_field(self, login_auth, password_auth):
-    #     """
-    #     Tests if the body fields are filled out correctly
-    #     """
-    #     response = API().get_all_characters(login=login_auth, password=password_auth)
-    #     assert response.compare_status_code(200)
-    #     assert WorkCharacters().check_characters_fields(response.return_body())
-
     @pytest.mark.test_negative_cases
     def test_delete_deleted_char(self, login_auth, password_auth):
         """
         Tests the correctness of the return body when DELETE a character 'Anyone' that does not exist
         """
         response = API().delete_character(raw_character_name="Anyone", login=login_auth, password=password_auth)
-        deleted_hero = {"error": "No such name"}
         assert response.compare_status_code(400)
-        assert response.compare_body(deleted_hero)
+        assert response.compare_body(RESPONSE_NO_SUCH_NAME_CHARACTER)
 
     @pytest.mark.test_negative_cases
     def test_create_existing_char(self, login_auth, password_auth, create_n_del_character):
@@ -224,3 +193,102 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         nonexistent_hero = {"error": "No such name"}
         assert response.compare_body(nonexistent_hero)
+
+    @pytest.mark.test_objects_api
+    def test_post_wrong_input(self, login_auth, password_auth):
+        """
+        Tests the POST wrong input data
+        """
+        data = deepcopy(MIN_LENGTH_FIELD["result"])
+        payload = data.pop("name")
+        response = API().post_character_by_body(json=payload, login=login_auth,
+                                                password=password_auth)
+        assert response.compare_status_code(400)
+        assert response.compare_body(RESPONSE_INVALID_INPUT)
+
+    @pytest.mark.test_objects_api
+    def test_post_missing_required_field(self, login_auth, password_auth):
+        """
+        Tests the empty value of required field 'name'
+        """
+        response = API().post_character_by_body(json=MISSING_REQUIRED_FIELD, login=login_auth,
+                                                password=password_auth)
+        assert response.compare_status_code(400)
+        assert response.compare_body(RESPONSE_MISSING_REQUIRED_FIELD)
+
+    @pytest.mark.test_objects_api
+    def test_post_min_field_positive(self, login_auth, password_auth, reset_database_after):
+        """
+        Tests the minimum symbols length of the field
+        """
+        data = deepcopy(MIN_LENGTH_FIELD)
+        payload = WorkCharacters().make_field_symbols(data["result"], 1)
+        response = API().post_character_by_body(json=payload, login=login_auth, password=password_auth)
+        assert response.compare_status_code(200)
+        assert response.compare_body({"result": payload})
+
+    @pytest.mark.test_objects_api
+    def test_post_max_field_positive(self, login_auth, password_auth, reset_database_after):
+        """
+        Tests the maximum symbols length of the field
+        """
+        data = deepcopy(MIN_LENGTH_FIELD)
+        payload = WorkCharacters().make_field_symbols(data["result"], 350)
+        response = API().post_character_by_body(json=payload, login=login_auth, password=password_auth)
+        assert response.compare_status_code(200)
+        assert response.compare_body({"result": payload})
+
+    @pytest.mark.tmp_test
+    def test_post_min_field_negative(self, login_auth, password_auth, reset_database_after):
+        """
+        Tests the minimum symbols length of the field
+        """
+        data = deepcopy(MIN_LENGTH_FIELD)
+        payload = WorkCharacters().make_field_symbols(data["result"], 0)
+        response = API().post_character_by_body(json=payload, login=login_auth, password=password_auth)
+        assert response.compare_status_code(400)
+        assert response.compare_body(RESPONSE_FIELD_LENGTH_ERROR)
+
+    @pytest.mark.tmp_test
+    def test_post_max_field_negative(self, login_auth, password_auth, reset_database_after):
+        """
+        Tests the maximum symbols length of the field
+        """
+        data = deepcopy(MIN_LENGTH_FIELD)
+        payload = WorkCharacters().make_field_symbols(data["result"], 351)
+        response = API().post_character_by_body(json=payload, login=login_auth, password=password_auth)
+        assert response.compare_status_code(400)
+        assert response.compare_body(RESPONSE_FIELD_LENGTH_ERROR)
+
+    @pytest.mark.test_http_functional
+    @pytest.mark.parametrize('data', DATA_STANDARD_CHARACTER)
+    def test_reset_database(self, data, login_auth, password_auth, create_character):
+        """
+        Tests the correctness of database reseting
+        :param data: standart character
+        :param create_character: setup fixture which creates standart character
+        """
+        response = API().delete_all_characters(login_auth, password_auth)
+        assert response.compare_status_code(200)
+        response = API().get_character_by_name(raw_character_name=data["result"]["name"],
+                                               login=login_auth, password=password_auth)
+        assert response.compare_body(RESPONSE_NO_SUCH_NAME_CHARACTER)
+
+    # @pytest.mark.test_negative_cases
+    # def test_post_missing_required_field(self, login_auth, password_auth):
+    #     data = MIN_LENGTH_FIELD["result"].pop("name")
+    #     response = API().post_character_by_body(json=data, login=login_auth,
+    #                                             password=password_auth)
+    #     assert response.compare_status_code(400)
+    #     assert response.compare_body(RESPONSE_MISSING_REQUIRED_FIELD)
+
+    # @pytest.mark.test_objects_api
+    # def test_characters_field(self, login_auth, password_auth):
+    #     """
+    #     Tests if the body fields are filled out correctly
+    #     """
+    #     response = API().get_all_characters(login=login_auth, password=password_auth)
+    #     assert response.compare_status_code(200)
+    #     assert WorkCharacters().check_characters_fields(response.return_body())
+
+

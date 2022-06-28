@@ -1,6 +1,8 @@
 from colorama import Style, init
+from copy import deepcopy
 from source.helpers.work_with_api import API
 from source.data.data_expected_bodies import DATA_FOR_MANY_CHARS_MANIPULATIONS
+from source.data.data_expected_responses import RESPONSE_FIELD_LENGTH_ERROR
 
 
 class WorkCharacters(object):
@@ -39,6 +41,14 @@ class WorkCharacters(object):
             print(f'{Style.BRIGHT}\n\tThere is a recurring character in the database '
                   f'(key: character, value: count of repeats): {duplicates}')
             return False
+
+    def make_field_symbols(self, payload, count_of_symbols):
+        for field in payload:
+            if field == "height" or field == "weight":
+                payload[field] = 0.0
+            else:
+                payload[field] = '0' * count_of_symbols
+        return payload
 
     def check_characters_fields(self, payload):
         bad_field = []

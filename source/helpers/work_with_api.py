@@ -100,3 +100,6 @@ class API(object):
         request_url = self.raw_url + 's'
         return self.get_request(url=request_url, headers=HEADERS, auth=(login, password))
 
+    def delete_all_characters(self, login, password):
+        request_url = 'http://rest.test.ivi.ru/v2/reset'
+        return self.post_request(url=request_url, headers=HEADERS, auth=(login, password))

@@ -11,7 +11,10 @@ RESPONSE_SLICE_LOGIN = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">\
               'unable to complete your request.  Either the server is overloaded or there is an error in the ' \
               'application.</p>\n'
 
-RESPONSE_MIN_LENGTH = {'error': "name: ['Length must be between 1 and 350.']"}
+RESPONSE_FIELD_LENGTH_ERROR = {'error': "identity: ['Length must be between 1 and 350.'], education: ['Length must be "
+                                        "between 1 and 350.'], universe: ['Length must be between 1 and 350.'], "
+                                        "name: ['Length must be between 1 and 350.'], other_aliases: ['Length must be "
+                                        "between 1 and 350.']"}
 
 RESPONSE_INVALID_INPUT = {'error': "_schema: ['Invalid input type.']"}
 

@@ -1,8 +1,9 @@
-from colorama import Style, init
-from copy import deepcopy
+import jsonschema
+from jsonschema import validate
+from colorama import Style
 from source.helpers.work_with_api import API
 from source.data.data_expected_bodies import DATA_FOR_MANY_CHARS_MANIPULATIONS
-from source.data.data_expected_responses import RESPONSE_FIELD_LENGTH_ERROR
+from source.data.schema import SCHEMA
 
 
 class WorkCharacters(object):
@@ -43,6 +44,12 @@ class WorkCharacters(object):
             return False
 
     def make_field_symbols(self, payload, count_of_symbols):
+        """
+        Generates the desired number of field elements
+        :param payload: character fields
+        :param count_of_symbols: needed count of symbols
+        :return: dict (data for POST method)
+        """
         for field in payload:
             if field == "height" or field == "weight":
                 payload[field] = 0.0
@@ -50,13 +57,22 @@ class WorkCharacters(object):
                 payload[field] = '0' * count_of_symbols
         return payload
 
-    def check_characters_fields(self, payload):
-        bad_field = []
-        for character in payload:
-            for field, value in character.items():
-                match field:
-                    case "height":
-                        s = str(value)
-                        if float(value) < 120 or (abs(s.find('.') - len(s)) - 1) > 2:
-                            bad_field.append(character)
+    def validate_fields(self, payload):
+        """
+        Compares the received characters fields with the sample 'SCHEMA'
+        :param payload: character fields
+        :return: bool value
+        """
+        bad_cases = {}
+        for character_fields in payload:
+            try:
+                validate(instance=character_fields, schema=SCHEMA)
+            except jsonschema.exceptions.ValidationError as error_msg:
+                raw_error_msg = (str(error_msg)).split()
+                parsed_key, value = raw_error_msg[-2], raw_error_msg[-1]
+                key = parsed_key.split("[")[-1].split("]")[0].split("\'")[1]
+                bad_cases.update({character_fields["name"]: {key: value}})
+        if bad_cases != {}:
+            print(bad_cases)
+            return False
 

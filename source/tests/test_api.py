@@ -238,7 +238,7 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         assert response.compare_body({"result": payload})
 
-    @pytest.mark.tmp_test
+    @pytest.mark.test_negative_cases
     def test_post_min_field_negative(self, login_auth, password_auth, reset_database_after):
         """
         Tests the minimum symbols length of the field
@@ -249,7 +249,7 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         assert response.compare_body(RESPONSE_FIELD_LENGTH_ERROR)
 
-    @pytest.mark.tmp_test
+    @pytest.mark.test_negative_cases
     def test_post_max_field_negative(self, login_auth, password_auth, reset_database_after):
         """
         Tests the maximum symbols length of the field
@@ -274,21 +274,12 @@ class TestAPI(object):
                                                login=login_auth, password=password_auth)
         assert response.compare_body(RESPONSE_NO_SUCH_NAME_CHARACTER)
 
-    # @pytest.mark.test_negative_cases
-    # def test_post_missing_required_field(self, login_auth, password_auth):
-    #     data = MIN_LENGTH_FIELD["result"].pop("name")
-    #     response = API().post_character_by_body(json=data, login=login_auth,
-    #                                             password=password_auth)
-    #     assert response.compare_status_code(400)
-    #     assert response.compare_body(RESPONSE_MISSING_REQUIRED_FIELD)
-
-    # @pytest.mark.test_objects_api
-    # def test_characters_field(self, login_auth, password_auth):
-    #     """
-    #     Tests if the body fields are filled out correctly
-    #     """
-    #     response = API().get_all_characters(login=login_auth, password=password_auth)
-    #     assert response.compare_status_code(200)
-    #     assert WorkCharacters().check_characters_fields(response.return_body())
-
+    @pytest.mark.test_objects_api
+    def test_get_fields_validate(self, login_auth, password_auth):
+        """
+        Tests the received character's fields with the JSON sample
+        """
+        response = API().get_all_characters(login=login_auth, password=password_auth)
+        assert response.compare_status_code(200)
+        assert WorkCharacters().validate_fields(response.return_body())
 

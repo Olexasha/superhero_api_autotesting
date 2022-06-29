@@ -4,12 +4,14 @@ from source.helpers.work_with_api import API
 from source.helpers.work_with_fields import WorkCharacters
 from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DATA_CHANGED_NAME_FOR_PUT, \
     MIN_LENGTH_FIELD, WRONG_ORDER_OF_FIELDS, WRONG_ORDER_OF_FIELDS_EXPECTED, MISSING_REQUIRED_FIELD, \
-    DATA_STANDARD_CHARACTER
+    DATA_STANDARD_CHARACTER, POST_ONLY_REQUIRED_NAME
 from source.data.data_expected_responses import RESPONSE_NEEDED_AUTHORIZATION, RESPONSE_SLICE_LOGIN, \
     RESPONSE_INVALID_POST_JSON, RESPONSE_MISSING_REQUIRED_FIELD, RESPONSE_FIELD_LENGTH_ERROR, RESPONSE_INVALID_INPUT, \
-    RESPONSE_NO_SUCH_NAME_CHARACTER
+    RESPONSE_NO_SUCH_NAME_CHARACTER, RESPONSE_CHARACTER_CREATED_ALREADY
 from source.data.data_headers import HEADERS
 
+
+# TODO: To add allure decorators
 
 class TestAPI(object):
     """
@@ -132,6 +134,14 @@ class TestAPI(object):
         assert response.compare_body(RESPONSE_NEEDED_AUTHORIZATION)
 
     @pytest.mark.test_negative_cases
+    def test_wrong_url_resource(self, login_auth, password_auth):
+        """
+        Tests API answers by getting wrong url resource
+        """
+        response = API().get_wrong_url_resource(login=login_auth, password=password_auth)
+        assert response.compare_status_code(404)
+
+    @pytest.mark.test_negative_cases
     def test_empty_login(self, login_auth, password_auth):
         """
         Tests wrong authorization by empty field
@@ -169,8 +179,7 @@ class TestAPI(object):
         response = API().post_character_by_body(json=DATA_FOR_POST_CHARACTER_BY_BODY[1], login=login_auth,
                                                 password=password_auth)
         assert response.compare_status_code(400)
-        existing_hero = {"error": "Spider-Man is already exists"}
-        assert response.compare_body(existing_hero)
+        assert response.compare_body(RESPONSE_CHARACTER_CREATED_ALREADY)
 
     @pytest.mark.test_negative_cases
     def test_get_not_existing_char(self, login_auth, password_auth):
@@ -180,13 +189,12 @@ class TestAPI(object):
         response = API().get_character_by_name(raw_character_name="Anyone",
                                                login=login_auth, password=password_auth)
         assert response.compare_status_code(400)
-        nonexistent_hero = {"error": "No such name"}
-        assert response.compare_body(nonexistent_hero)
+        assert response.compare_body(RESPONSE_NO_SUCH_NAME_CHARACTER)
 
     @pytest.mark.test_objects_api
     def test_post_wrong_input(self, login_auth, password_auth):
         """
-        Tests the POST wrong input data
+        Tests POST wrong input data
         """
         data = deepcopy(MIN_LENGTH_FIELD["result"])
         payload = data.pop("name")
@@ -194,6 +202,16 @@ class TestAPI(object):
                                                 password=password_auth)
         assert response.compare_status_code(400)
         assert response.compare_body(RESPONSE_INVALID_INPUT)
+
+    @pytest.mark.test_objects_api
+    def test_post_only_required_field(self, login_auth, password_auth):
+        """
+        Tests POST only required field 'name'
+        """
+        response = API().post_character_by_body(json=POST_ONLY_REQUIRED_NAME["result"], login=login_auth,
+                                                password=password_auth)
+        assert response.compare_status_code(200)
+        assert response.compare_body(POST_ONLY_REQUIRED_NAME)
 
     @pytest.mark.test_objects_api
     def test_post_missing_required_field(self, login_auth, password_auth):

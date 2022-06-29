@@ -101,5 +101,17 @@ class API(object):
         return self.get_request(url=request_url, headers=HEADERS, auth=(login, password))
 
     def delete_all_characters(self, login, password):
+        """
+        Resets DB characters to default
+        :return: Ready-made request
+        """
         request_url = 'http://rest.test.ivi.ru/v2/reset'
         return self.post_request(url=request_url, headers=HEADERS, auth=(login, password))
+
+    def get_wrong_url_resource(self, login, password):
+        """
+        Tries to get non-existed resource for testing code 404
+        :return: Ready-made request
+        """
+        request_url = 'http://rest.test.ivi.ru/v2/character/unexpected'
+        return self.get_request(url=request_url, headers=HEADERS, auth=(login, password))

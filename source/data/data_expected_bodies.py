@@ -92,6 +92,7 @@ WRONG_ORDER_OF_FIELDS = {"result": {
     "name": "Belorussian"
 }}
 
+
 WRONG_ORDER_OF_FIELDS_EXPECTED = {'result': {
     'education': 'Unrevealed',
     'height': 218.0,
@@ -110,6 +111,8 @@ MIN_LENGTH_FIELD = {"result": {
     "universe": "Marvel Universe, Earth-TRN701, Earth-13",
     "weight": 76.1
 }}
+
+POST_ONLY_REQUIRED_NAME = {"result": {"name": "Mini Hulk"}}
 
 MISSING_REQUIRED_FIELD = {
     "education": "University",

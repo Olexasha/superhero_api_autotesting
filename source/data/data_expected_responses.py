@@ -21,3 +21,5 @@ RESPONSE_INVALID_INPUT = {'error': "_schema: ['Invalid input type.']"}
 RESPONSE_MISSING_REQUIRED_FIELD = {'error': "name: ['Missing data for required field.']"}
 
 RESPONSE_INVALID_POST_JSON = {"error": "Payload must be a valid json"}
+
+RESPONSE_CHARACTER_CREATED_ALREADY = {"error": "Spider-Man is already exists"}

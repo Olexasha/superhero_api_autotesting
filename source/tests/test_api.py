@@ -1,4 +1,5 @@
 import pytest
+import allure
 from copy import deepcopy
 from source.helpers.work_with_api import API
 from source.helpers.work_with_fields import WorkCharacters
@@ -6,18 +7,22 @@ from source.data.data_expected_bodies import DATA_FOR_POST_CHARACTER_BY_BODY, DA
     MIN_LENGTH_FIELD, WRONG_ORDER_OF_FIELDS, WRONG_ORDER_OF_FIELDS_EXPECTED, MISSING_REQUIRED_FIELD, \
     DATA_STANDARD_CHARACTER, POST_ONLY_REQUIRED_NAME
 from source.data.data_expected_responses import RESPONSE_NEEDED_AUTHORIZATION, RESPONSE_SLICE_LOGIN, \
-    RESPONSE_INVALID_POST_JSON, RESPONSE_MISSING_REQUIRED_FIELD, RESPONSE_FIELD_LENGTH_ERROR, RESPONSE_INVALID_INPUT, \
+    RESPONSE_MISSING_REQUIRED_FIELD, RESPONSE_FIELD_LENGTH_ERROR, RESPONSE_INVALID_INPUT, \
     RESPONSE_NO_SUCH_NAME_CHARACTER, RESPONSE_CHARACTER_CREATED_ALREADY
 from source.data.data_headers import HEADERS
+from source.data.schema import CHARACTER_SCHEMA
 
 
-# TODO: To add allure decorators
-
+@allure.title('Тестирование REST API')
+@allure.link('https://github.com/Olexasha/test_ticket', name='GitHub')
+@allure.link('http://rest.test.ivi.ru/v2/', name='Quest_Ticket')
 class TestAPI(object):
     """
     Class to run tests by pytest
     """
 
+    @allure.feature('Тестирование API')
+    @allure.story('Стандартные HTTP методы')
     @pytest.mark.test_http_functional
     @pytest.mark.parametrize('data', DATA_FOR_POST_CHARACTER_BY_BODY)
     def test_get_character_by_name(self, data, login_auth, password_auth, create_several_characters,
@@ -31,8 +36,16 @@ class TestAPI(object):
         response = API().get_character_by_name(raw_character_name=data["name"],
                                                login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
-        assert response.compare_body({"result": data})
+        try:
+            assert WorkCharacters.validate_fields(response.return_body(), CHARACTER_SCHEMA)
+            assert response.compare_body({"result": data})
+        except AssertionError as err:
+            allure.attach(body=err, name='Error message', attachment_type=allure.attachment_type.TEXT)
+            pytest.fail(err)
 
+    @allure.feature('Стандартные HTTP запроса')
+    @allure.step('Тест создания экземпляра персонажа')
+    @allure.story('Стандартные HTTP методы')
     @pytest.mark.test_http_functional
     @pytest.mark.parametrize('data', DATA_FOR_POST_CHARACTER_BY_BODY)
     def test_create_character(self, data, login_auth, password_auth, delete_several_characters):
@@ -47,8 +60,14 @@ class TestAPI(object):
         response = API().get_character_by_name(raw_character_name=data["name"], login=login_auth,
                                                password=password_auth)
         assert response.compare_status_code(200)
-        assert response.compare_body({"result": data})
+        try:
+            assert response.compare_body({"result": data})
+        except AssertionError as err:
+            allure.attach(body=err, name='POST_stdout', attachment_type=allure.attachment_type.TEXT)
+            pytest.fail(err)
 
+    @allure.feature('Стандартные HTTP запросы')
+    @allure.step('Тест удаления экземпляра персонажа')
     @pytest.mark.test_http_functional
     @pytest.mark.parametrize('data', DATA_FOR_POST_CHARACTER_BY_BODY)
     def test_delete_character_by_name(self, data, login_auth, password_auth, create_several_characters):
@@ -62,6 +81,8 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         assert response.compare_body(deleted_hero)
 
+    @allure.feature('Стандартные HTTP запросы')
+    @allure.step('Тест получения и сравнения заголовков с заданными')
     @pytest.mark.test_objects_api
     def test_headers_field(self, login_auth, password_auth):
         """
@@ -83,6 +104,8 @@ class TestAPI(object):
                 case "Connection":
                     assert headers[key] == HEADERS["Connection"]
 
+    @allure.feature('Стандартные HTTP запросы')
+    @allure.step('Тест изменения поля существующего персонажа')
     @pytest.mark.test_http_functional
     @pytest.mark.parametrize('data', DATA_CHANGED_NAME_FOR_PUT)
     def test_update_character_identity_by_name(self, data, login_auth, password_auth, create_n_del_character):
@@ -94,12 +117,22 @@ class TestAPI(object):
         response = API().put_character_by_name(json=data["result"],
                                                login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
-        assert response.compare_body(data)
+        try:
+            assert response.compare_body(data)
+        except AssertionError as err:
+            allure.attach(body=err, name='PUT_stdout', attachment_type=allure.attachment_type.TEXT)
+            pytest.fail(err)
         response = API().get_character_by_name(raw_character_name=data["result"]["name"],
                                                login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
-        assert response.compare_body(data)
+        try:
+            assert response.compare_body(data)
+        except AssertionError as err:
+            allure.attach(body=err, name='PUT_stdout_check', attachment_type=allure.attachment_type.TEXT)
+            pytest.fail(err)
 
+    @allure.feature('Работа с со всеми экземплярами персонажей')
+    @allure.step('Тест получения всех экземпляров персонажей')
     @pytest.mark.test_http_functional
     def test_get_all_characters(self, login_auth, password_auth, delete_3_characters_same_time):
         """
@@ -110,8 +143,14 @@ class TestAPI(object):
         assert response.compare_status_code(200)
         characters_before = response.count_all_characters()
         characters_after = WorkCharacters().count_after_create_chars(login=login_auth, password=password_auth)
-        assert characters_before + 3 == characters_after
+        try:
+            assert characters_before + 3 == characters_after
+        except AssertionError as err:
+            allure.attach(body=err, name='GET_stdout', attachment_type=allure.attachment_type.TEXT)
+            pytest.fail(err)
 
+    @allure.feature('Работа с со всеми экземплярами персонажей')
+    @allure.step('Тест на поиск одинаковых экземпляров персонажей')
     @pytest.mark.test_objects_api
     def test_get_all_duplicate_chars(self, login_auth, password_auth):
         """
@@ -119,8 +158,14 @@ class TestAPI(object):
         """
         response = API().get_all_characters(login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
-        assert WorkCharacters().find_duplicate_characters(response.return_body())
+        try:
+            assert WorkCharacters().find_duplicate_characters(response.return_body())
+        except AssertionError as err:
+            allure.attach(body=err, name='GET_stdout', attachment_type=allure.attachment_type.TEXT)
+            pytest.fail(err)
 
+    @allure.feature('Коды ошибок')
+    @allure.step('Тест некорретного ввода пароля')
     @pytest.mark.test_negative_cases
     def test_wrong_authorization(self, login_auth, password_auth):
         """
@@ -133,6 +178,8 @@ class TestAPI(object):
         assert response.compare_status_code(401)
         assert response.compare_body(RESPONSE_NEEDED_AUTHORIZATION)
 
+    @allure.feature('Коды ошибок')
+    @allure.step('Тест ввода несуществующего URL адреса')
     @pytest.mark.test_negative_cases
     def test_wrong_url_resource(self, login_auth, password_auth):
         """
@@ -141,6 +188,8 @@ class TestAPI(object):
         response = API().get_wrong_url_resource(login=login_auth, password=password_auth)
         assert response.compare_status_code(404)
 
+    @allure.feature('Коды ошибок')
+    @allure.step('Тест авторизации с отсутствующим логином')
     @pytest.mark.test_negative_cases
     def test_empty_login(self, login_auth, password_auth):
         """
@@ -150,6 +199,8 @@ class TestAPI(object):
         assert response.compare_status_code(500)
         assert response.compare_raw_text(RESPONSE_SLICE_LOGIN)
 
+    @allure.feature('Коды ошибок')
+    @allure.step('Тест создания экземпляра персонажа с некорректным порядком полей')
     @pytest.mark.test_negative_cases
     def test_wrong_order_of_field(self, login_auth, password_auth, double_delete_character):
         """
@@ -159,8 +210,14 @@ class TestAPI(object):
         response = API().post_character_by_body(json=WRONG_ORDER_OF_FIELDS["result"],
                                                 login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
-        assert response.compare_body(WRONG_ORDER_OF_FIELDS_EXPECTED)
+        try:
+            assert response.compare_body(WRONG_ORDER_OF_FIELDS_EXPECTED)
+        except AssertionError as err:
+            allure.attach(body=err, name='GET_stdout', attachment_type=allure.attachment_type.TEXT)
+            pytest.fail(err)
 
+    @allure.feature('Коды ошибок')
+    @allure.step('Тест удаления отсутствующего экземпляра персонажа')
     @pytest.mark.test_negative_cases
     def test_delete_deleted_char(self, login_auth, password_auth):
         """
@@ -170,6 +227,8 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         assert response.compare_body(RESPONSE_NO_SUCH_NAME_CHARACTER)
 
+    @allure.feature('Коды ошибок')
+    @allure.step('Тест создания существующего экземпляра персонажа')
     @pytest.mark.test_negative_cases
     def test_create_existing_char(self, login_auth, password_auth, create_n_del_character):
         """
@@ -181,6 +240,8 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         assert response.compare_body(RESPONSE_CHARACTER_CREATED_ALREADY)
 
+    @allure.feature('Коды ошибок')
+    @allure.step('Тест получения несуществующего экземпляра персонажа')
     @pytest.mark.test_negative_cases
     def test_get_not_existing_char(self, login_auth, password_auth):
         """
@@ -191,6 +252,8 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         assert response.compare_body(RESPONSE_NO_SUCH_NAME_CHARACTER)
 
+    @allure.feature('Коды ошибок')
+    @allure.step('Тест ввода некорректных данных')
     @pytest.mark.test_objects_api
     def test_post_wrong_input(self, login_auth, password_auth):
         """
@@ -203,6 +266,8 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         assert response.compare_body(RESPONSE_INVALID_INPUT)
 
+    @allure.feature('Проверки полей')
+    @allure.step('Тест создания экземпляра персонажа лишь с требуемым полем')
     @pytest.mark.test_objects_api
     def test_post_only_required_field(self, login_auth, password_auth):
         """
@@ -211,8 +276,14 @@ class TestAPI(object):
         response = API().post_character_by_body(json=POST_ONLY_REQUIRED_NAME["result"], login=login_auth,
                                                 password=password_auth)
         assert response.compare_status_code(200)
-        assert response.compare_body(POST_ONLY_REQUIRED_NAME)
+        try:
+            assert response.compare_body(POST_ONLY_REQUIRED_NAME)
+        except AssertionError as err:
+            allure.attach(body=err, name='GET_stdout', attachment_type=allure.attachment_type.TEXT)
+            pytest.fail(err)
 
+    @allure.feature('Проверки полей')
+    @allure.step('Тест создания экземпляра персонажа с отсутствием требуемого поля')
     @pytest.mark.test_objects_api
     def test_post_missing_required_field(self, login_auth, password_auth):
         """
@@ -223,6 +294,8 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         assert response.compare_body(RESPONSE_MISSING_REQUIRED_FIELD)
 
+    @allure.feature('Проверки полей')
+    @allure.step('Тест задания минимальной длины полей')
     @pytest.mark.test_objects_api
     def test_post_min_field_positive(self, login_auth, password_auth, reset_database_after):
         """
@@ -232,8 +305,14 @@ class TestAPI(object):
         payload = WorkCharacters().make_field_symbols(data["result"], 1)
         response = API().post_character_by_body(json=payload, login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
-        assert response.compare_body({"result": payload})
+        try:
+            assert response.compare_body({"result": payload})
+        except AssertionError as err:
+            allure.attach(body=err, name='GET_stdout', attachment_type=allure.attachment_type.TEXT)
+            pytest.fail(err)
 
+    @allure.feature('Проверки полей')
+    @allure.step('Тест задания максимальной длины полей')
     @pytest.mark.test_objects_api
     def test_post_max_field_positive(self, login_auth, password_auth, reset_database_after):
         """
@@ -243,8 +322,14 @@ class TestAPI(object):
         payload = WorkCharacters().make_field_symbols(data["result"], 350)
         response = API().post_character_by_body(json=payload, login=login_auth, password=password_auth)
         assert response.compare_status_code(200)
-        assert response.compare_body({"result": payload})
+        try:
+            assert response.compare_body({"result": payload})
+        except AssertionError as err:
+            allure.attach(body=err, name='GET_stdout', attachment_type=allure.attachment_type.TEXT)
+            pytest.fail(err)
 
+    @allure.feature('Проверки полей')
+    @allure.step('Тест задания полей меньше допустимых')
     @pytest.mark.test_negative_cases
     def test_post_min_field_negative(self, login_auth, password_auth, reset_database_after):
         """
@@ -256,6 +341,8 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         assert response.compare_body(RESPONSE_FIELD_LENGTH_ERROR)
 
+    @allure.feature('Проверки полей')
+    @allure.step('Тест задания полей больше допустимых')
     @pytest.mark.test_negative_cases
     def test_post_max_field_negative(self, login_auth, password_auth, reset_database_after):
         """
@@ -267,6 +354,8 @@ class TestAPI(object):
         assert response.compare_status_code(400)
         assert response.compare_body(RESPONSE_FIELD_LENGTH_ERROR)
 
+    @allure.feature('Проверки полей')
+    @allure.step('Тест возврата экземпляров персонажей к дефолту')
     @pytest.mark.test_http_functional
     @pytest.mark.parametrize('data', DATA_STANDARD_CHARACTER)
     def test_reset_database(self, data, login_auth, password_auth, create_character):
@@ -280,12 +369,3 @@ class TestAPI(object):
         response = API().get_character_by_name(raw_character_name=data["result"]["name"],
                                                login=login_auth, password=password_auth)
         assert response.compare_body(RESPONSE_NO_SUCH_NAME_CHARACTER)
-
-    @pytest.mark.test_objects_api
-    def test_get_fields_validate(self, login_auth, password_auth):
-        """
-        Tests the received character's fields with the JSON sample
-        """
-        response = API().get_all_characters(login=login_auth, password=password_auth)
-        assert response.compare_status_code(200)
-        assert WorkCharacters().validate_fields(response.return_body())

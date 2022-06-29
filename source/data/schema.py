@@ -1,4 +1,4 @@
-SCHEMA = {
+CHARACTER_SCHEMA = {
         "id": "http://json-schema.org/draft-04/schema#",
         "$schema": "http://json-schema.org/draft-04/schema#",
         "description": "Tests the received fields for some checks",
@@ -9,7 +9,7 @@ SCHEMA = {
                 "type": "string", "minLength": 1, "maxLength": 350},
             "height": {
                 "description": "Identifies hero's height",
-                "type": "number", "minimum": 30, "maximum": 500},
+                "type": "number"},
             "identity": {
                 "description": "Identifies hero's identity",
                 "type": "string", "minLength": 1, "maxLength": 350},
@@ -24,6 +24,6 @@ SCHEMA = {
                 "type": "string", "minLength": 1, "maxLength": 350},
             "weight": {
                 "description": "Identifies hero's weight",
-                "type": "number", "minimum": 2, "maximum": 1500}},
+                "type": "number"}},
         "required": ["name"]
 }

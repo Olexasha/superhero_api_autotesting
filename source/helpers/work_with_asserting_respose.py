@@ -1,3 +1,4 @@
+import allure
 from colorama import Style, init
 from json.decoder import JSONDecodeError
 
@@ -25,7 +26,8 @@ class ParseResponse(object):
         except JSONDecodeError:
             print('I\'ve got not JSON type!')
 
-    def compare_status_code(self, expected_status_code):
+    @allure.step("fafaf = {expected_status_code}")
+    def compare_status_code(self, expected_status_code: int) -> bool:
         """
         HTTP code status comparison
         :param expected_status_code: expected code
@@ -35,7 +37,7 @@ class ParseResponse(object):
               f'is equal to the actual code: \"{self.status_code}\"')
         return self.status_code == expected_status_code
 
-    def compare_body(self, expected_body):
+    def compare_body(self, expected_body: dict) -> bool:
         """
         HTTP JSON body comparison
         :param expected_body: expected body
@@ -47,7 +49,7 @@ class ParseResponse(object):
               f'\n\t\t\"{self.body}\"')
         return self.body == expected_body
 
-    def compare_raw_text(self, expected_text):
+    def compare_raw_text(self, expected_text: str) -> bool:
         """
         HTTP raw body comparison
         :param expected_text: expected text
@@ -59,23 +61,22 @@ class ParseResponse(object):
               f'\n\t\t\"{self.text}\"')
         return self.text == expected_text
 
-    def return_headers(self):
+    def return_headers(self) -> dict:
         """
         :return: HTTP headers
         """
         return self.headers
 
-    def return_body(self):
+    def return_body(self) -> dict:
         """
         :return: HTTP JSON body
         """
         return self.body["result"]
 
-    def count_all_characters(self):
+    def count_all_characters(self) -> int:
         """
         :return: Count of all characters
         """
-        # print(self.body)
         print(f'{Style.BRIGHT}\n\t  The current number of characters in the database: {len(self.body["result"])}')
         return len(self.body["result"])
 

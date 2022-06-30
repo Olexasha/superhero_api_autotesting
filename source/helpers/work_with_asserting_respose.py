@@ -26,7 +26,7 @@ class ParseResponse(object):
         except JSONDecodeError:
             print('I\'ve got not JSON type!')
 
-    @allure.step("fafaf = {expected_status_code}")
+    @allure.step('Сравнение кода ответа. Ждём: {expected_status_code}')
     def compare_status_code(self, expected_status_code: int) -> bool:
         """
         HTTP code status comparison
@@ -37,6 +37,7 @@ class ParseResponse(object):
               f'is equal to the actual code: \"{self.status_code}\"')
         return self.status_code == expected_status_code
 
+    @allure.step('Сравнение тела ответа')
     def compare_body(self, expected_body: dict) -> bool:
         """
         HTTP JSON body comparison
@@ -49,6 +50,7 @@ class ParseResponse(object):
               f'\n\t\t\"{self.body}\"')
         return self.body == expected_body
 
+    @allure.step('Сравнение текста ответа')
     def compare_raw_text(self, expected_text: str) -> bool:
         """
         HTTP raw body comparison
@@ -61,18 +63,26 @@ class ParseResponse(object):
               f'\n\t\t\"{self.text}\"')
         return self.text == expected_text
 
+    @allure.step('Возврат заголовков')
     def return_headers(self) -> dict:
         """
         :return: HTTP headers
         """
         return self.headers
 
+    @allure.step('Возврат тела ответа')
     def return_body(self) -> dict:
         """
         :return: HTTP JSON body
         """
-        return self.body["result"]
+        if 'error' in self.body:
+            return self.body
+        elif 'is deleted' in self.body["result"]:
+            return self.body
+        else:
+            return self.body["result"]
 
+    @allure.step('Посчитать количество персонажей')
     def count_all_characters(self) -> int:
         """
         :return: Count of all characters

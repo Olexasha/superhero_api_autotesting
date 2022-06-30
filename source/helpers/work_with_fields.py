@@ -1,4 +1,3 @@
-import jsonschema
 import allure
 from jsonschema import validate, ValidationError
 from colorama import Style
@@ -7,10 +6,9 @@ from source.data.data_expected_bodies import DATA_FOR_MANY_CHARS_MANIPULATIONS
 
 
 @allure.title('Логика работы с экземплярами персонажей')
-# @allure.author('Olexasha')
 class WorkCharacters(object):
 
-    @allure.step('Посчитать количество персонажей после добавления новых')
+    @allure.step('Подсчёт количество персонажей после добавления новых')
     def count_after_create_chars(self, login: str, password: str) -> int:
         """
         Counts the number of all characters before creating new ones. Some validates also
@@ -29,7 +27,7 @@ class WorkCharacters(object):
         response = API().get_all_characters(login=login, password=password)
         return response.count_all_characters()
 
-    @allure.step('')
+    @allure.step('Поиск одинаковых экземпляров персонажей')
     def find_duplicate_characters(self, payload: dict) -> bool:
         """
         Looks for the same characters and adds them to the 'duplicates'. 'duplicates' specifies the character
@@ -47,6 +45,7 @@ class WorkCharacters(object):
                   f'(key: character, value: count of repeats): {duplicates}')
             return False
 
+    @allure.step('Задание длины string полей')
     def make_field_symbols(self, payload: dict, count_of_symbols: int) -> dict:
         """
         Generates the desired number of field elements
@@ -56,46 +55,32 @@ class WorkCharacters(object):
         """
         for field in payload:
             if field == "height" or field == "weight":
-                payload[field] = 0.0
+                payload[field] = 1.0
             else:
-                payload[field] = '0' * count_of_symbols
+                payload[field] = '9' * count_of_symbols
         return payload
-    """
-    @allure.step('Валидация полей')
-    def validate_fields(self, payload: dict) -> bool:
-        \"""
-        Compares the received characters fields with the sample 'SCHEMA'
-        :param payload: character fields
-        :return: bool value
-        \"""
-        bad_cases = {}
-        with allure.step('Валидация поля'):
-            for character_fields in payload:
-                try:
-                    validate(instance=character_fields, schema=SCHEMA)
-                except jsonschema.exceptions.ValidationError as error_msg:
-                    raw_error_msg = (str(error_msg)).split()
-                    parsed_key, value = raw_error_msg[-2], raw_error_msg[-1]
-                    key = parsed_key.split("[")[-1].split("]")[0].split("\'")[1]
-                    bad_cases.update({character_fields["name"]: {key: value}})
-            if bad_cases != {}:
-                print(bad_cases)
-                return False
-            """
+
     @staticmethod
     @allure.step('Валидация полей')
     def validate_fields(payload: dict | list, schema: dict) -> bool:
         """
         Compares the received characters fields with the sample 'SCHEMA'
+        :param schema: schema sample for validation
         :param payload: character fields
         :return: bool value
         """
         try:
             if isinstance(payload, list):
-                for instance in payload:
-                    validate(instance=instance, schema=schema)
+                # bad_cases = {}
+                for character_fields in payload:
+                    validate(instance=character_fields, schema=schema)
             else:
                 validate(instance=payload, schema=schema)
             return True
-        except ValidationError as e:
-            raise e
+        except ValidationError as err:
+            allure.attach(body=err, name='validation_stderr', attachment_type=allure.attachment_type.TEXT)
+            # raw_error_msg = (str(err)).split()
+            # parsed_key, value = raw_error_msg[-2], raw_error_msg[-1]
+            # key = parsed_key.split("[")[-1].split("]")[0].split("\'")[1]
+            # bad_cases.update({character_fields["name"]: {key: value}})
+            raise err
